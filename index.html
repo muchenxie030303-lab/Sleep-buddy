@@ -15,39 +15,49 @@
 <body>
   <div class="app">
     <header>
-      <div class="logo" aria-hidden="true">🌙</div>
+      <p class="eyebrow">Daily rhythm</p>
       <h1>Sleep Buddy</h1>
-      <p class="tagline">Gentle reminders to wake &amp; rest</p>
+      <p class="tagline">Wake &amp; rest, on your schedule</p>
     </header>
 
-    <section class="card" aria-labelledby="wake-heading">
-      <div class="card-header">
-        <span class="icon sun" aria-hidden="true">☀️</span>
-        <h2 id="wake-heading">Wake up</h2>
+    <section class="card card--wake" aria-labelledby="wake-heading">
+      <div class="card-inner">
+        <div class="card-label">
+          <span class="label-icon" aria-hidden="true">☀️</span>
+          <h2 id="wake-heading">Wake up</h2>
+        </div>
+
+        <label class="time-hero">
+          <input type="time" id="wakeTime" class="time-input-native" value="07:00" />
+          <span class="time-display" id="wakeTimeDisplay">7:00 AM</span>
+          <span class="time-hint">Tap to set morning alarm</span>
+        </label>
+
+        <label class="sound-row">
+          <span class="sound-label">Alarm sound</span>
+          <select id="wakeSound" class="sound-select"></select>
+        </label>
       </div>
-      <label class="field">
-        <span>Time</span>
-        <input type="time" id="wakeTime" value="07:00" />
-      </label>
-      <label class="field">
-        <span>Sound</span>
-        <select id="wakeSound"></select>
-      </label>
     </section>
 
-    <section class="card" aria-labelledby="sleep-heading">
-      <div class="card-header">
-        <span class="icon moon" aria-hidden="true">🌙</span>
-        <h2 id="sleep-heading">Sleep</h2>
+    <section class="card card--sleep" aria-labelledby="sleep-heading">
+      <div class="card-inner">
+        <div class="card-label">
+          <span class="label-icon" aria-hidden="true">🌙</span>
+          <h2 id="sleep-heading">Sleep</h2>
+        </div>
+
+        <label class="time-hero">
+          <input type="time" id="sleepTime" class="time-input-native" value="23:00" />
+          <span class="time-display" id="sleepTimeDisplay">11:00 PM</span>
+          <span class="time-hint">Tap to set bedtime reminder</span>
+        </label>
+
+        <label class="sound-row">
+          <span class="sound-label">Reminder sound</span>
+          <select id="sleepSound" class="sound-select"></select>
+        </label>
       </div>
-      <label class="field">
-        <span>Time</span>
-        <input type="time" id="sleepTime" value="23:00" />
-      </label>
-      <label class="field">
-        <span>Sound</span>
-        <select id="sleepSound"></select>
-      </label>
     </section>
 
     <section class="card controls">
@@ -58,7 +68,7 @@
       </label>
 
       <div class="button-row">
-        <button type="button" id="testWake" class="btn secondary">Test wake sound</button>
+        <button type="button" id="testWake" class="btn secondary">Test wake alarm</button>
         <button type="button" id="testSleep" class="btn secondary">Test sleep sound</button>
       </div>
 
@@ -68,14 +78,24 @@
     <p id="notifStatus" class="notif-status"></p>
     <p id="status" class="status" role="status" aria-live="polite"></p>
 
-    <div id="alertBanner" class="alert-banner" hidden>
-      <p class="alert-title" id="alertTitle"></p>
-      <p class="alert-body" id="alertBody"></p>
-      <button type="button" id="dismissAlert" class="btn secondary">OK</button>
+    <div id="sleepAlert" class="sleep-alert" hidden>
+      <p class="sleep-alert-title" id="sleepAlertTitle"></p>
+      <p class="sleep-alert-body" id="sleepAlertBody"></p>
+      <button type="button" id="dismissSleepAlert" class="btn secondary">OK</button>
+    </div>
+
+    <div id="wakeAlarmOverlay" class="wake-alarm-overlay" hidden>
+      <div class="wake-alarm-glow" aria-hidden="true"></div>
+      <div class="wake-alarm-content">
+        <p class="wake-alarm-icon" aria-hidden="true">☀️</p>
+        <h2 class="wake-alarm-title">Good morning</h2>
+        <p class="wake-alarm-body">Time to wake up — alarm repeats until you dismiss it.</p>
+        <button type="button" id="dismissWakeAlarm" class="btn primary btn-awake">I'm awake</button>
+      </div>
     </div>
 
     <footer>
-      <p>Add this page to your iPhone Home Screen for the best experience.</p>
+      <p>Add to your iPhone Home Screen for the best experience.</p>
       <p class="hint">Safari → Share → <strong>Add to Home Screen</strong></p>
     </footer>
   </div>
