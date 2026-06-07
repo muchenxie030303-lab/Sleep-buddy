@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sleep Buddy" />
+  <title>Sleep Buddy</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo" aria-hidden="true">🌙</div>
+      <h1>Sleep Buddy</h1>
+      <p class="tagline">Gentle reminders to wake &amp; rest</p>
+    </header>
+
+    <section class="card" aria-labelledby="wake-heading">
+      <div class="card-header">
+        <span class="icon sun" aria-hidden="true">☀️</span>
+        <h2 id="wake-heading">Wake up</h2>
+      </div>
+      <label class="field">
+        <span>Time</span>
+        <input type="time" id="wakeTime" value="07:00" />
+      </label>
+      <label class="field">
+        <span>Sound</span>
+        <select id="wakeSound"></select>
+      </label>
+    </section>
+
+    <section class="card" aria-labelledby="sleep-heading">
+      <div class="card-header">
+        <span class="icon moon" aria-hidden="true">🌙</span>
+        <h2 id="sleep-heading">Sleep</h2>
+      </div>
+      <label class="field">
+        <span>Time</span>
+        <input type="time" id="sleepTime" value="23:00" />
+      </label>
+      <label class="field">
+        <span>Sound</span>
+        <select id="sleepSound"></select>
+      </label>
+    </section>
+
+    <section class="card controls">
+      <label class="toggle">
+        <input type="checkbox" id="enabled" checked />
+        <span class="toggle-track"></span>
+        <span>Reminders on</span>
+      </label>
+
+      <div class="button-row">
+        <button type="button" id="testWake" class="btn secondary">Test wake sound</button>
+        <button type="button" id="testSleep" class="btn secondary">Test sleep sound</button>
+      </div>
+
+      <button type="button" id="save" class="btn primary">Save reminders</button>
+    </section>
+
+    <p id="notifStatus" class="notif-status"></p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <div id="alertBanner" class="alert-banner" hidden>
+      <p class="alert-title" id="alertTitle"></p>
+      <p class="alert-body" id="alertBody"></p>
+      <button type="button" id="dismissAlert" class="btn secondary">OK</button>
+    </div>
+
+    <footer>
+      <p>Add this page to your iPhone Home Screen for the best experience.</p>
+      <p class="hint">Safari → Share → <strong>Add to Home Screen</strong></p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
