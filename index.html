@@ -27,15 +27,17 @@
           <h2 id="wake-heading">Wake up</h2>
         </div>
 
-        <label class="time-hero">
-          <input type="time" id="wakeTime" class="time-input-native" value="07:00" />
-          <span class="time-display" id="wakeTimeDisplay">7:00 AM</span>
-          <span class="time-hint">Tap to set morning alarm</span>
+        <label class="setting-row">
+          <span class="setting-label">Time</span>
+          <span class="setting-control time-control">
+            <input type="time" id="wakeTime" class="time-input-native" value="07:00" />
+            <span class="time-display" id="wakeTimeDisplay">7:00 AM</span>
+          </span>
         </label>
 
-        <label class="sound-row">
-          <span class="sound-label">Alarm sound</span>
-          <select id="wakeSound" class="sound-select"></select>
+        <label class="setting-row setting-row--divider">
+          <span class="setting-label">Alarm sound</span>
+          <select id="wakeSound" class="setting-control sound-select"></select>
         </label>
       </div>
     </section>
@@ -47,15 +49,17 @@
           <h2 id="sleep-heading">Sleep</h2>
         </div>
 
-        <label class="time-hero">
-          <input type="time" id="sleepTime" class="time-input-native" value="23:00" />
-          <span class="time-display" id="sleepTimeDisplay">11:00 PM</span>
-          <span class="time-hint">Tap to set bedtime reminder</span>
+        <label class="setting-row">
+          <span class="setting-label">Time</span>
+          <span class="setting-control time-control">
+            <input type="time" id="sleepTime" class="time-input-native" value="23:00" />
+            <span class="time-display" id="sleepTimeDisplay">11:00 PM</span>
+          </span>
         </label>
 
-        <label class="sound-row">
-          <span class="sound-label">Reminder sound</span>
-          <select id="sleepSound" class="sound-select"></select>
+        <label class="setting-row setting-row--divider">
+          <span class="setting-label">Reminder sound</span>
+          <select id="sleepSound" class="setting-control sound-select"></select>
         </label>
       </div>
     </section>
