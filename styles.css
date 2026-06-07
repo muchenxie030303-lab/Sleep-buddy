@@ -129,14 +129,56 @@ h1 {
   line-height: 1;
 }
 
-.time-hero {
+.setting-row {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  position: relative;
-  padding: 8px 0 20px;
-  margin-bottom: 4px;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
   cursor: pointer;
+}
+
+.setting-row:last-child {
+  margin-bottom: 0;
+}
+
+.setting-row--divider {
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.setting-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.setting-control {
+  flex: 1;
+  max-width: 200px;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  text-align: right;
+}
+
+.sound-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.time-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .time-input-native {
@@ -150,57 +192,19 @@ h1 {
 }
 
 .time-display {
-  font-size: 3rem;
-  font-weight: 300;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
+  pointer-events: none;
 }
 
 .card--wake .time-display {
   color: var(--sun);
-  text-shadow: 0 0 40px rgba(255, 200, 87, 0.25);
 }
 
 .card--sleep .time-display {
   color: var(--moon);
-  text-shadow: 0 0 40px rgba(142, 202, 230, 0.2);
-}
-
-.time-hint {
-  margin-top: 10px;
-  font-size: 0.78rem;
-  color: var(--muted);
-  letter-spacing: 0.02em;
-}
-
-.sound-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.sound-label {
-  font-size: 0.82rem;
-  color: var(--muted);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.sound-select {
-  flex: 1;
-  max-width: 200px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--surface-2);
-  color: var(--text);
-  font-size: 0.9rem;
-  font-family: inherit;
-  text-align: right;
 }
 
 .controls {
