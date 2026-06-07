@@ -1,4 +1,4 @@
-const CACHE = "sleep-buddy-v3";
+const CACHE = "sleep-buddy-v6";
 const ASSETS = [
   "./",
   "./index.html",
