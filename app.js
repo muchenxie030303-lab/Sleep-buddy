@@ -6,11 +6,14 @@ const SOUND_OPTIONS = [
 
 const STORAGE_KEY = "sleepBuddy";
 const CHECK_INTERVAL_MS = 30_000;
+const WAKE_REPEAT_INTERVAL_MS = 60_000;
 
 const $ = (id) => document.getElementById(id);
 
 const wakeTime = $("wakeTime");
 const sleepTime = $("sleepTime");
+const wakeTimeDisplay = $("wakeTimeDisplay");
+const sleepTimeDisplay = $("sleepTimeDisplay");
 const wakeSound = $("wakeSound");
 const sleepSound = $("sleepSound");
 const enabled = $("enabled");
@@ -19,13 +22,17 @@ const testWakeBtn = $("testWake");
 const testSleepBtn = $("testSleep");
 const statusEl = $("status");
 const notifStatusEl = $("notifStatus");
-const alertBanner = $("alertBanner");
-const alertTitle = $("alertTitle");
-const alertBody = $("alertBody");
-const dismissAlert = $("dismissAlert");
+const sleepAlert = $("sleepAlert");
+const sleepAlertTitle = $("sleepAlertTitle");
+const sleepAlertBody = $("sleepAlertBody");
+const dismissSleepAlert = $("dismissSleepAlert");
+const wakeAlarmOverlay = $("wakeAlarmOverlay");
+const dismissWakeAlarm = $("dismissWakeAlarm");
 
-let lastWakeFired = "";
 let lastSleepFired = "";
+let wakeAlarmActive = false;
+let wakeAlarmIntervalId = null;
+let wakeDismissedDate = "";
 
 function populateSoundSelects() {
   const markup = SOUND_OPTIONS.map(
@@ -33,6 +40,18 @@ function populateSoundSelects() {
   ).join("");
   wakeSound.innerHTML = markup;
   sleepSound.innerHTML = markup;
+}
+
+function formatTimeDisplay(timeValue) {
+  const [h, m] = timeValue.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${String(m).padStart(2, "0")} ${ampm}`;
+}
+
+function syncTimeDisplays() {
+  wakeTimeDisplay.textContent = formatTimeDisplay(wakeTime.value);
+  sleepTimeDisplay.textContent = formatTimeDisplay(sleepTime.value);
 }
 
 function setStatus(message, isError = false) {
@@ -50,9 +69,11 @@ function loadSettings() {
     wakeSound.value = data.wakeSound || "gentle-chime";
     sleepSound.value = data.sleepSound || "soft-pulse";
     enabled.checked = data.enabled !== false;
+    wakeDismissedDate = data.wakeDismissedDate || "";
   } catch {
     setStatus("Could not load saved settings.", true);
   }
+  syncTimeDisplays();
 }
 
 function saveSettings() {
@@ -62,6 +83,7 @@ function saveSettings() {
     wakeSound: wakeSound.value,
     sleepSound: sleepSound.value,
     enabled: enabled.checked,
+    wakeDismissedDate,
   };
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -119,28 +141,70 @@ function playBuiltInPattern(ctx, soundId, offsetSec) {
   });
 }
 
-async function playReminder(kind) {
+function getSoundId(kind) {
   const raw = localStorage.getItem(STORAGE_KEY);
   const data = raw ? JSON.parse(raw) : {};
-  const soundId = kind === "wake" ? data.wakeSound : data.sleepSound;
-  const title = kind === "wake" ? "Time to wake up! ☀️" : "Time to sleep! 🌙";
+  if (kind === "wake") {
+    return data.wakeSound || wakeSound.value || "gentle-chime";
+  }
+  return data.sleepSound || sleepSound.value || "soft-pulse";
+}
 
-  playBuiltInSound(
-    soundId || (kind === "wake" ? "gentle-chime" : "soft-pulse"),
-    3
-  );
-
-  showInAppAlert("Sleep Buddy", title);
+function fireWakeAlarmCycle() {
+  const title = "Time to wake up! ☀️";
+  playBuiltInSound(getSoundId("wake"), 3);
 
   if (Notification.permission === "granted") {
-    new Notification("Sleep Buddy", { body: title, tag: `sleep-buddy-${kind}` });
+    new Notification("Sleep Buddy", {
+      body: title,
+      tag: "sleep-buddy-wake",
+      requireInteraction: true,
+    });
   }
 }
 
-function showInAppAlert(title, body) {
-  alertTitle.textContent = title;
-  alertBody.textContent = body;
-  alertBanner.hidden = false;
+function startWakeAlarm() {
+  if (wakeAlarmActive) return;
+  wakeAlarmActive = true;
+  wakeAlarmOverlay.hidden = false;
+  document.body.style.overflow = "hidden";
+
+  fireWakeAlarmCycle();
+  wakeAlarmIntervalId = window.setInterval(fireWakeAlarmCycle, WAKE_REPEAT_INTERVAL_MS);
+}
+
+function stopWakeAlarm() {
+  wakeAlarmActive = false;
+  if (wakeAlarmIntervalId !== null) {
+    window.clearInterval(wakeAlarmIntervalId);
+    wakeAlarmIntervalId = null;
+  }
+  wakeAlarmOverlay.hidden = true;
+  document.body.style.overflow = "";
+
+  wakeDismissedDate = todayKey();
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    const data = JSON.parse(raw);
+    data.wakeDismissedDate = wakeDismissedDate;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+}
+
+function showSleepAlert(title, body) {
+  sleepAlertTitle.textContent = title;
+  sleepAlertBody.textContent = body;
+  sleepAlert.hidden = false;
+}
+
+function playSleepReminder() {
+  const title = "Time to sleep! 🌙";
+  playBuiltInSound(getSoundId("sleep"), 3);
+  showSleepAlert("Sleep Buddy", title);
+
+  if (Notification.permission === "granted") {
+    new Notification("Sleep Buddy", { body: title, tag: "sleep-buddy-sleep" });
+  }
 }
 
 function updateNotifStatus() {
@@ -163,13 +227,11 @@ async function requestNotifications() {
   if (!("Notification" in window)) return "unsupported";
   if (Notification.permission === "granted") return "granted";
   if (Notification.permission === "denied") return "denied";
-  const result = await Notification.requestPermission();
-  return result;
+  return Notification.requestPermission();
 }
 
 function currentHHMM() {
-  const now = new Date();
-  return now.toTimeString().slice(0, 5);
+  return new Date().toTimeString().slice(0, 5);
 }
 
 function todayKey() {
@@ -184,15 +246,19 @@ function checkReminders() {
   if (!data.enabled) return;
 
   const nowKey = `${todayKey()}-${currentHHMM()}`;
+  const alreadyDismissedToday = data.wakeDismissedDate === todayKey();
 
-  if (data.wakeTime === currentHHMM() && lastWakeFired !== nowKey) {
-    lastWakeFired = nowKey;
-    playReminder("wake");
+  if (
+    data.wakeTime === currentHHMM() &&
+    !alreadyDismissedToday &&
+    !wakeAlarmActive
+  ) {
+    startWakeAlarm();
   }
 
   if (data.sleepTime === currentHHMM() && lastSleepFired !== nowKey) {
     lastSleepFired = nowKey;
-    playReminder("sleep");
+    playSleepReminder();
   }
 }
 
@@ -205,20 +271,36 @@ async function onSave() {
   } else if (perm === "denied") {
     setStatus("Saved, but notifications are blocked in Settings.", true);
   } else {
-    setStatus("Saved! You'll still see on-screen alerts when reminders fire.");
+    setStatus("Saved! Wake alarm repeats until dismissed.");
   }
 }
 
-async function onTest(kind) {
+async function onTestWake() {
   const perm = await requestNotifications();
   updateNotifStatus();
 
   try {
-    await playReminder(kind);
+    startWakeAlarm();
     if (perm === "granted") {
-      setStatus(`Test ${kind} reminder — sound + notification sent.`);
+      setStatus("Wake alarm on — tap I'm awake to stop.");
     } else {
-      setStatus(`Test ${kind} reminder — sound played. Check the popup banner above.`);
+      setStatus("Wake alarm on — tap I'm awake when you're up.");
+    }
+  } catch {
+    setStatus("Tap again — iPhone needs a tap before playing audio.", true);
+  }
+}
+
+async function onTestSleep() {
+  const perm = await requestNotifications();
+  updateNotifStatus();
+
+  try {
+    playSleepReminder();
+    if (perm === "granted") {
+      setStatus("Test sleep reminder — sound + notification sent.");
+    } else {
+      setStatus("Test sleep reminder — sound played.");
     }
   } catch {
     setStatus("Tap again — iPhone needs a tap before playing audio.", true);
@@ -230,9 +312,17 @@ function registerServiceWorker() {
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 }
 
-dismissAlert.addEventListener("click", () => {
-  alertBanner.hidden = true;
+dismissWakeAlarm.addEventListener("click", () => {
+  stopWakeAlarm();
+  setStatus("Wake alarm dismissed. Have a great day!");
 });
+
+dismissSleepAlert.addEventListener("click", () => {
+  sleepAlert.hidden = true;
+});
+
+wakeTime.addEventListener("change", syncTimeDisplays);
+sleepTime.addEventListener("change", syncTimeDisplays);
 
 populateSoundSelects();
 loadSettings();
@@ -242,5 +332,5 @@ setInterval(checkReminders, CHECK_INTERVAL_MS);
 checkReminders();
 
 saveBtn.addEventListener("click", onSave);
-testWakeBtn.addEventListener("click", () => onTest("wake"));
-testSleepBtn.addEventListener("click", () => onTest("sleep"));
+testWakeBtn.addEventListener("click", onTestWake);
+testSleepBtn.addEventListener("click", onTestSleep);
